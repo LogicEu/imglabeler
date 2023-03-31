@@ -6,8 +6,8 @@ CC = gcc
 STD = -std=c99
 WFLAGS = -Wall -Wextra -pedantic
 OPT = -O2
-INC = -I/opt/homebrew/Cellar/glfw/3.3.8/include
-DLIB = -L/opt/homebrew/Cellar/libpng/1.6.39/lib -L/opt/homebrew/Cellar/jpeg/9e/lib -L/opt/homebrew/Cellar/glfw/3.3.8/lib
+INC = -I/opt/homebrew/Cellar/glfw/3.3.8/include -I/opt/homebrew/Cellar/freetype/2.13.0_1/include/freetype2
+DLIB = -L/opt/homebrew/Cellar/libpng/1.6.39/lib -L/opt/homebrew/Cellar/jpeg/9e/lib -L/opt/homebrew/Cellar/glfw/3.3.8/lib -L/opt/homebrew/Cellar/freetype/2.13.0_1/lib
 LIB = imgtool
 
 SRCDIR = src
@@ -24,7 +24,7 @@ DLIB += $(patsubst %,-l%, $(LIB))
 INC += $(patsubst %,-I%,$(LIB))
 INC += -Ispxe -Iutopia
 
-DLIB += -lz -lpng -ljpeg -lglfw
+DLIB += -lz -lpng -ljpeg -lglfw -lfreetype
 
 OS=$(shell uname -s)
 ifeq ($(OS),Darwin)

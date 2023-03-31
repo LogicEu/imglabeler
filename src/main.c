@@ -4,14 +4,19 @@
 #include <spxe.h>
 #include <imgtool.h>
 #include <utopia/vector.h>
+#include <utopia/hash.h>
 #include <utopia/map.h>
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
+#include "font.h"
+
 #define WIDTH 800
 #define HEIGHT 600
+
+//#define BUG printf("File: '%s', Function: '%s', Line: %u\n", __FILE__, __func__, __LINE__)
 
 static int iml_path_check(const char* path)
 {
@@ -93,22 +98,33 @@ static void iml_load(Px* pixbuf, const char* imgpath)
 
 int main(const int argc, const char** argv)
 {
-    struct vector images = vector_create(sizeof(const char*));
+    const char* fontpath = "assets/Retro.ttf";
+    struct hash keywords = hash_create(sizeof(char*));
+    struct map images = map_create(sizeof(char*), sizeof(struct vector)); 
+    
     for (int i = 1; i < argc; ++i) {
         if (iml_path_check(argv[i])) {
-            vector_push(&images, &argv[i]);
+            struct vector tags = vector_create(sizeof(char*));
+            map_push(&images, &argv[i], &tags);
         }
     }
-
+    
     if (!images.size) {
         printf("Missing input image.");
         return EXIT_FAILURE;
     }
-
+    
     size_t index = 0, changed = 0;
-    const char** imagepaths = images.data;
+    const char** imagepaths = images.keys;
+    struct vector* imagetags = images.values;
+    
+    Font* font = fontLoad(fontpath, 24);
+    if (!font) {
+        fprintf(stderr, "coult not open font file: %s\n", fontpath);
+        return EXIT_FAILURE;
+    }
+
     Px* pixbuf = spxeStart("imglabeler", 800, 600, WIDTH, HEIGHT);
-    memset(pixbuf, 155, WIDTH * HEIGHT * sizeof(Px));
     iml_load(pixbuf, imagepaths[index++]);
     
     while (spxeRun(pixbuf)) {
@@ -129,9 +145,22 @@ int main(const int argc, const char** argv)
             iml_load(pixbuf, imagepaths[index]);
             --changed;
         }
+
+        fontDrawText(pixbuf, font, "this is text", 4, 4);
+    }
+    
+    char** keys = keywords.data;
+    for (size_t i = 0; i < keywords.size; ++i) {
+        free(keys[i]);
     }
 
-    vector_free(&images);
+    for (size_t i = 0; i < images.size; ++i) {
+        vector_free(imagetags + i);
+    }
+
+    fontFree(font);
+    map_free(&images);
+    hash_free(&keywords);
     return spxeEnd(pixbuf);
 }
 
