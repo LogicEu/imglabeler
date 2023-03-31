@@ -1,0 +1,9 @@
+[submodule "spxe"]
+	path = spxe
+	url = https://github.com/LogicEu/spxe.git
+[submodule "imgtool"]
+	path = imgtool
+	url = https://github.com/LogicEu/imgtool.git
+[submodule "utopia"]
+	path = utopia
+	url = https://github.com/LogicEu/utopia.git
